@@ -1,5 +1,5 @@
 rsconf = {
-    _id : "rsmongo",
+    _id : "rs0",
     members: [
         {
             "_id": 0,

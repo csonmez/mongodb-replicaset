@@ -7,10 +7,12 @@ services:
         container_name: mongodb1
         volumes:
             - ./data/mongodata1:/data/db
+            - ./mongo-conf/mongo.conf:/etc/mongo.conf
         expose:
             - "27017"
         ports:
             - "27017:27017"
+        command: mongod --config /etc/mongo.conf
 
     mongodb2:
         image: mongo
@@ -18,10 +20,12 @@ services:
         container_name: mongodb2
         volumes:
             - ./data/mongodata2:/data/db
+            - ./mongo-conf/mongo.conf:/etc/mongo.conf
         expose:
             - "27017"
         ports:
             - "27018:27017"
+        command: mongod --config /etc/mongo.conf
 
     mongodb3:
         image: mongo
@@ -29,10 +33,12 @@ services:
         container_name: mongodb3
         volumes:
             - ./data/mongodata3:/data/db
+            - ./mongo-conf/mongo.conf:/etc/mongo.conf
         expose:
             - "27017"
         ports:
             - "27019:27017"
+        command: mongod --config /etc/mongo.conf
 
     mongosetup:
         image: "mongo-setup"
@@ -44,8 +50,8 @@ services:
             - ./data/mongostatus:/data/
     
 
-volumes:
-    mongodata1:
-    mongodata2:
-    mongodata3:
-    mongostatus:
+#volumes:
+#    mongodata1:
+#    mongodata2:
+#    mongodata3:
+#    mongostatus:
