@@ -8,11 +8,10 @@ services:
         volumes:
             - ./data/mongodata1:/data/db
             - ./mongo-conf/mongo.conf:/etc/mongo.conf
-        expose:
-            - "27017"
+            - ./mongo-setup/mongo-setup.js:/home/mongo-setup.js
         ports:
             - "27017:27017"
-        command: mongod --config /etc/mongo.conf
+        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
 
     mongodb2:
         image: mongo
@@ -21,11 +20,9 @@ services:
         volumes:
             - ./data/mongodata2:/data/db
             - ./mongo-conf/mongo.conf:/etc/mongo.conf
-        expose:
-            - "27017"
         ports:
-            - "27018:27017"
-        command: mongod --config /etc/mongo.conf
+            - "27018:27018"
+        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
 
     mongodb3:
         image: mongo
@@ -34,24 +31,11 @@ services:
         volumes:
             - ./data/mongodata3:/data/db
             - ./mongo-conf/mongo.conf:/etc/mongo.conf
-        expose:
-            - "27017"
         ports:
-            - "27019:27017"
-        command: mongod --config /etc/mongo.conf
+            - "27019:27019"
+        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
 
-    mongosetup:
-        image: "mongo-setup"
-        build: "./mongo-setup"
-        container_name: "mongosetup"
-        depends_on:
-            - mongodb1
-        volumes:
-            - ./data/mongostatus:/data/
-    
-
-#volumes:
-#    mongodata1:
-#    mongodata2:
-#    mongodata3:
-#    mongostatus:
+volumes:
+    mongodata1:
+    mongodata2:
+    mongodata3:
