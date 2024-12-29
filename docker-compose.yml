@@ -1,41 +1,82 @@
-version: '3'
+version: '3.8'
 
 services:
     mongodb1:
-        image: mongo
+        image: mongo:6.0
         restart: always
         container_name: mongodb1
         volumes:
-            - ./data/mongodata1:/data/db
-            - ./mongo-conf/mongo.conf:/etc/mongo.conf
-            - ./mongo-setup/mongo-setup.js:/home/mongo-setup.js
+            - mongodata1:/data/db
         ports:
             - "27017:27017"
-        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+        command: mongod --replSet rs0 --bind_ip_all
+        networks:
+            - mongodb-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
 
     mongodb2:
-        image: mongo
+        image: mongo:6.0
         restart: always
         container_name: mongodb2
         volumes:
-            - ./data/mongodata2:/data/db
-            - ./mongo-conf/mongo.conf:/etc/mongo.conf
+            - mongodata2:/data/db
         ports:
-            - "27018:27018"
-        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+            - "27018:27017"
+        command: mongod --replSet rs0 --bind_ip_all
+        networks:
+            - mongodb-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
 
     mongodb3:
-        image: mongo
+        image: mongo:6.0
         restart: always
         container_name: mongodb3
         volumes:
-            - ./data/mongodata3:/data/db
-            - ./mongo-conf/mongo.conf:/etc/mongo.conf
+            - mongodata3:/data/db
         ports:
-            - "27019:27019"
-        command: ["--config","/etc/mongo.conf","--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+            - "27019:27017"
+        command: mongod --replSet rs0 --bind_ip_all
+        networks:
+            - mongodb-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
+
+    mongodb-setup:
+        image: mongo:6.0
+        container_name: mongodb-setup
+        restart: "no"
+        depends_on:
+            mongodb1:
+                condition: service_healthy
+            mongodb2:
+                condition: service_healthy
+            mongodb3:
+                condition: service_healthy
+        volumes:
+            - ./scripts:/scripts
+        entrypoint: [ "bash", "/scripts/setup.sh" ]
+        networks:
+            - mongodb-network
 
 volumes:
     mongodata1:
     mongodata2:
     mongodata3:
+
+networks:
+    mongodb-network:
+        driver: bridge
